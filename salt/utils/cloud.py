@@ -35,6 +35,7 @@ except ImportError:
 try:
     import winrm
     from winrm.exceptions import WinRMTransportError
+    from requests.exceptions import ConnectTimeout, ReadTimeout
 
     HAS_WINRM = True
 except ImportError:
@@ -878,7 +879,12 @@ def wait_for_winrm(host, port, username, password, timeout=900, use_ssl=True, ve
                 log.debug('WinRM session connected...')
                 return s
             log.debug('Return code was {0}'.format(r.status_code))
+<<<<<<< HEAD
         except WinRMTransportError as exc:
+=======
+            time.sleep(1)
+        except (WinRMTransportError, ConnectTimeout) as exc:
+>>>>>>> Windows cloud improvements
             log.debug('Caught exception in wait_for_winrm: {0}'.format(exc))
 
         if time.time() - start > timeout:
@@ -2198,8 +2204,24 @@ def winrm_cmd(session, command, flags, **kwargs):
     log.debug('Executing WinRM command: {0} {1}'.format(
         command, flags
     ))
-    r = session.run_cmd(command, flags)
-    return r.status_code
+    trycount = 0
+    while True:
+        trycount += 1
+        try:
+            r = session.run_cmd(command, flags)
+            return r.status_code
+        except ReadTimeout as exc:
+            log.debug('Caught exception in winrm_cmd: {0}'.format(exc))
+            if trycount >= 10:
+                log.error('WinRM command failed')
+                return 1
+            log.debug(
+                'Retrying WinRM command: {0} {1} '
+                '(try {2})'.format(
+                    command, flags, trycount
+                )
+            )
+            time.sleep(1)
 
 
 def root_cmd(command, tty, sudo, allow_failure=False, **kwargs):
