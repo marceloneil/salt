@@ -879,12 +879,8 @@ def wait_for_winrm(host, port, username, password, timeout=900, use_ssl=True, ve
                 log.debug('WinRM session connected...')
                 return s
             log.debug('Return code was {0}'.format(r.status_code))
-<<<<<<< HEAD
-        except WinRMTransportError as exc:
-=======
             time.sleep(1)
         except (WinRMTransportError, ConnectTimeout) as exc:
->>>>>>> Windows cloud improvements
             log.debug('Caught exception in wait_for_winrm: {0}'.format(exc))
 
         if time.time() - start > timeout:
