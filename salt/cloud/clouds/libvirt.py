@@ -550,7 +550,7 @@ def destroy_domain(conn, domain):
                          libvirt.VIR_DOMAIN_UNDEFINE_NVRAM)
 
 
-def create_volume_xml(volume):
+def create_volume_xml(volume, name):
     template = """<volume>
                     <name>n</name>
                     <capacity>c</capacity>
@@ -573,7 +573,7 @@ def create_volume_xml(volume):
     return xml_string
 
 
-def create_volume_with_backing_store_xml(volume):
+def create_volume_with_backing_store_xml(volume, name):
     template = """<volume>
                     <name>n</name>
                     <capacity>c</capacity>
