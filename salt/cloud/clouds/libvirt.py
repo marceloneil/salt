@@ -394,9 +394,9 @@ def create(vm_):
                     source = disk.find("./source").attrib['file']
                     pool, volume = find_pool_and_volume(conn, source)
                     if clone_strategy == 'quick':
-                        new_volume = pool.createXML(create_volume_with_backing_store_xml(volume), 0)
+                        new_volume = pool.createXML(create_volume_with_backing_store_xml(volume, name), 0)
                     else:
-                        new_volume = pool.createXMLFrom(create_volume_xml(volume), volume, 0)
+                        new_volume = pool.createXMLFrom(create_volume_xml(volume, name), volume, 0)
                     cleanup.append({'what': 'volume', 'item': new_volume})
 
                     disk.find("./source").attrib['file'] = new_volume.path()
@@ -404,7 +404,7 @@ def create(vm_):
                     source = disk.find("./source").attrib['file']
                     pool, volume = find_pool_and_volume(conn, source)
                     # TODO: more control on the cloned disk type
-                    new_volume = pool.createXMLFrom(create_volume_xml(volume), volume, 0)
+                    new_volume = pool.createXMLFrom(create_volume_xml(volume, name), volume, 0)
                     cleanup.append({'what': 'volume', 'item': new_volume})
 
                     disk.find("./source").attrib['file'] = new_volume.path()
@@ -564,7 +564,7 @@ def create_volume_xml(volume):
                 """
     volume_xml = ElementTree.fromstring(template)
     # TODO: generate name
-    volume_xml.find('name').text = generate_new_name(volume.name())
+    volume_xml.find('name').text = name
     log.debug("Volume: {0}".format(dir(volume)))
     volume_xml.find('capacity').text = str(volume.info()[1])
     volume_xml.find('./target/path').text = volume.path()
@@ -590,7 +590,7 @@ def create_volume_with_backing_store_xml(volume):
                 """
     volume_xml = ElementTree.fromstring(template)
     # TODO: generate name
-    volume_xml.find('name').text = generate_new_name(volume.name())
+    volume_xml.find('name').text = name
     log.debug("volume: {0}".format(dir(volume)))
     volume_xml.find('capacity').text = str(volume.info()[1])
     volume_xml.find('./backingStore/path').text = volume.path()
